@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f7dff" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Jiipeli Forum</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div>
+          <h1>Jiipeli Discussion Forum</h1>
+          <p>Simple offline-ready forum for topics, replies, and notifications.</p>
+        </div>
+        <button id="installButton" class="install-button" hidden>Install app</button>
+      </header>
+
+      <main>
+        <section class="new-topic">
+          <h2>New discussion</h2>
+          <form id="topicForm">
+            <label>
+              Title
+              <input id="topicTitle" type="text" placeholder="Enter a topic title" required maxlength="80" />
+            </label>
+            <label>
+              Message
+              <textarea id="topicMessage" rows="4" placeholder="Write your message" required maxlength="500"></textarea>
+            </label>
+            <button type="submit">Post topic</button>
+          </form>
+        </section>
+
+        <section class="threads">
+          <div class="threads-header">
+            <h2>Discussions</h2>
+            <p id="threadCount">0 topics</p>
+          </div>
+          <div id="threadsList" class="threads-list"></div>
+        </section>
+      </main>
+
+      <footer>
+        <p>Works offline after first visit. Your topics are stored locally in this browser.</p>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -4,22 +4,28 @@ const topicForm = document.getElementById('topicForm');
 const installButton = document.getElementById('installButton');
 
 let beforeInstallPromptEvent = null;
+let threads = [];
 
 function formatTime(isoString) {
   const date = new Date(isoString);
   return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
 }
 
-function renderThreads(threads) {
+function renderThreads() {
   threadsList.innerHTML = '';
   threadCount.textContent = `${threads.length} topic${threads.length !== 1 ? 's' : ''}`;
+
+  if (threads.length === 0) {
+    threadsList.innerHTML = '<p class="empty-state">No discussions yet. Start the first topic!</p>';
+    return;
+  }
 
   threads.forEach(thread => {
     const threadCard = document.createElement('article');
     threadCard.className = 'thread-card';
     threadCard.innerHTML = `
       <h3>${thread.title}</h3>
-      <p class="thread-meta">posted ${formatTime(thread.created_at)}</p>
+      <p class="thread-meta">posted ${formatTime(thread.createdAt)}</p>
       <p class="thread-body">${thread.message}</p>
       <div class="thread-actions">
         <button data-action="toggle-replies" data-id="${thread.id}">View replies (${thread.replies.length})</button>
@@ -38,58 +44,69 @@ function renderThreads(threads) {
     threadsList.appendChild(threadCard);
     const repliesSection = threadCard.querySelector(`#replies-${thread.id}`);
 
-    thread.replies.forEach(reply => {
-      const replyElement = document.createElement('div');
-      replyElement.className = 'reply';
-      replyElement.innerHTML = `
-        <p class="reply-meta">${formatTime(reply.created_at)}</p>
-        <p class="reply-body">${reply.message}</p>
-      `;
-      repliesSection.insertBefore(replyElement, repliesSection.querySelector('.reply-form'));
-    });
+    if (thread.replies.length > 0) {
+      thread.replies.forEach(reply => {
+        const replyElement = document.createElement('div');
+        replyElement.className = 'reply';
+        replyElement.innerHTML = `
+          <p class="reply-meta">${formatTime(reply.createdAt)}</p>
+          <p class="reply-body">${reply.body}</p>
+        `;
+        repliesSection.insertBefore(replyElement, repliesSection.querySelector('.reply-form'));
+      });
+    }
   });
 }
 
 async function fetchThreads() {
-  const response = await fetch('/api/threads');
-  if (!response.ok) {
-    throw new Error('Failed to load threads');
+  try {
+    const response = await fetch('/api/threads');
+    if (!response.ok) {
+      throw new Error(`Failed to load threads: ${response.status}`);
+    }
+
+    threads = await response.json();
+    renderThreads();
+  } catch (error) {
+    console.error(error);
+    threadCount.textContent = 'Unable to load topics';
+    threadsList.innerHTML = '<p class="error">Unable to load discussion topics. Please refresh.</p>';
   }
-  return response.json();
 }
 
-async function createThread(title, message) {
+async function postThread(title, message) {
   const response = await fetch('/api/threads', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title, message }),
   });
+
   if (!response.ok) {
-    throw new Error('Failed to create thread');
+    throw new Error('Unable to create topic.');
   }
-  return response.json();
+
+  const thread = await response.json();
+  threads.unshift(thread);
+  renderThreads();
 }
 
-async function postReply(threadId, message) {
+async function addReply(threadId, message) {
   const response = await fetch(`/api/threads/${threadId}/replies`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ body: message }),
   });
-  if (!response.ok) {
-    throw new Error('Failed to post reply');
-  }
-  return response.json();
-}
 
-async function loadAndRender() {
-  try {
-    const threads = await fetchThreads();
-    renderThreads(threads);
-  } catch (error) {
-    console.error(error);
-    threadsList.innerHTML = '<p class="thread-body">Unable to load discussions. Please try again later.</p>';
+  if (!response.ok) {
+    throw new Error('Unable to post reply.');
   }
+
+  const reply = await response.json();
+  const target = threads.find(thread => String(thread.id) === String(threadId));
+  if (!target) return;
+
+  target.replies.push(reply);
+  renderThreads();
 }
 
 topicForm.addEventListener('submit', async event => {
@@ -98,9 +115,12 @@ topicForm.addEventListener('submit', async event => {
   const message = document.getElementById('topicMessage').value;
   if (!title.trim() || !message.trim()) return;
 
-  await createThread(title.trim(), message.trim());
-  topicForm.reset();
-  await loadAndRender();
+  try {
+    await postThread(title.trim(), message.trim());
+    topicForm.reset();
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 threadsList.addEventListener('click', async event => {
@@ -120,8 +140,11 @@ threadsList.addEventListener('click', async event => {
     const message = replyInput.value;
     if (!message.trim()) return;
 
-    await postReply(threadId, message.trim());
-    await loadAndRender();
+    try {
+      await addReply(threadId, message.trim());
+    } catch (error) {
+      console.error(error);
+    }
   }
 });
 
@@ -149,4 +172,4 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-loadAndRender();
+fetchThreads();

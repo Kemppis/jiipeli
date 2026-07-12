@@ -1,7 +1,8 @@
 {
   "name": "jiipeli",
   "version": "0.1.0",
-  "private": true,
+  "description": "Simple PWA discussion forum with SQLite backend.",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },

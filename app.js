@@ -1,51 +1,25 @@
-const STORAGE_KEY = 'jiipeli-discussion-threads';
 const threadsList = document.getElementById('threadsList');
 const threadCount = document.getElementById('threadCount');
 const topicForm = document.getElementById('topicForm');
 const installButton = document.getElementById('installButton');
 
 let beforeInstallPromptEvent = null;
-let threads = [];
-
-function createThread(title, message) {
-  return {
-    id: Date.now().toString(),
-    title: title.trim(),
-    message: message.trim(),
-    createdAt: new Date().toISOString(),
-    replies: [],
-  };
-}
-
-function saveThreads() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(threads));
-}
-
-function loadThreads() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) {
-    return JSON.parse(saved);
-  }
-  return [
-    createThread('Welcome to Jiipeli', 'Start a new discussion or reply to an existing topic. This forum works offline on supported devices.'),
-  ];
-}
 
 function formatTime(isoString) {
   const date = new Date(isoString);
-  return date.toLocaleString([], {dateStyle: 'medium', timeStyle: 'short'});
+  return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
 }
 
-function renderThreads() {
+function renderThreads(threads) {
   threadsList.innerHTML = '';
   threadCount.textContent = `${threads.length} topic${threads.length !== 1 ? 's' : ''}`;
 
-  threads.slice().reverse().forEach(thread => {
+  threads.forEach(thread => {
     const threadCard = document.createElement('article');
     threadCard.className = 'thread-card';
     threadCard.innerHTML = `
       <h3>${thread.title}</h3>
-      <p class="thread-meta">posted ${formatTime(thread.createdAt)}</p>
+      <p class="thread-meta">posted ${formatTime(thread.created_at)}</p>
       <p class="thread-body">${thread.message}</p>
       <div class="thread-actions">
         <button data-action="toggle-replies" data-id="${thread.id}">View replies (${thread.replies.length})</button>
@@ -64,46 +38,72 @@ function renderThreads() {
     threadsList.appendChild(threadCard);
     const repliesSection = threadCard.querySelector(`#replies-${thread.id}`);
 
-    if (thread.replies.length > 0) {
-      thread.replies.forEach(reply => {
-        const replyElement = document.createElement('div');
-        replyElement.className = 'reply';
-        replyElement.innerHTML = `
-          <p class="reply-meta">${formatTime(reply.createdAt)}</p>
-          <p class="reply-body">${reply.body}</p>
-        `;
-        repliesSection.insertBefore(replyElement, repliesSection.querySelector('.reply-form'));
-      });
-    }
+    thread.replies.forEach(reply => {
+      const replyElement = document.createElement('div');
+      replyElement.className = 'reply';
+      replyElement.innerHTML = `
+        <p class="reply-meta">${formatTime(reply.created_at)}</p>
+        <p class="reply-body">${reply.message}</p>
+      `;
+      repliesSection.insertBefore(replyElement, repliesSection.querySelector('.reply-form'));
+    });
   });
 }
 
-function addReply(threadId, message) {
-  const target = threads.find(thread => thread.id === threadId);
-  if (!target) return;
-
-  target.replies.push({
-    id: Date.now().toString(),
-    body: message.trim(),
-    createdAt: new Date().toISOString(),
-  });
-  saveThreads();
-  renderThreads();
+async function fetchThreads() {
+  const response = await fetch('/api/threads');
+  if (!response.ok) {
+    throw new Error('Failed to load threads');
+  }
+  return response.json();
 }
 
-topicForm.addEventListener('submit', event => {
+async function createThread(title, message) {
+  const response = await fetch('/api/threads', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, message }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create thread');
+  }
+  return response.json();
+}
+
+async function postReply(threadId, message) {
+  const response = await fetch(`/api/threads/${threadId}/replies`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to post reply');
+  }
+  return response.json();
+}
+
+async function loadAndRender() {
+  try {
+    const threads = await fetchThreads();
+    renderThreads(threads);
+  } catch (error) {
+    console.error(error);
+    threadsList.innerHTML = '<p class="thread-body">Unable to load discussions. Please try again later.</p>';
+  }
+}
+
+topicForm.addEventListener('submit', async event => {
   event.preventDefault();
   const title = document.getElementById('topicTitle').value;
   const message = document.getElementById('topicMessage').value;
   if (!title.trim() || !message.trim()) return;
 
-  threads.push(createThread(title, message));
-  saveThreads();
+  await createThread(title.trim(), message.trim());
   topicForm.reset();
-  renderThreads();
+  await loadAndRender();
 });
 
-threadsList.addEventListener('click', event => {
+threadsList.addEventListener('click', async event => {
   const action = event.target.dataset.action;
   const threadId = event.target.dataset.id;
   if (!action || !threadId) return;
@@ -111,6 +111,7 @@ threadsList.addEventListener('click', event => {
   if (action === 'toggle-replies') {
     const replies = document.getElementById(`replies-${threadId}`);
     replies.hidden = !replies.hidden;
+    return;
   }
 
   if (action === 'post-reply') {
@@ -118,7 +119,9 @@ threadsList.addEventListener('click', event => {
     if (!replyInput) return;
     const message = replyInput.value;
     if (!message.trim()) return;
-    addReply(threadId, message);
+
+    await postReply(threadId, message.trim());
+    await loadAndRender();
   }
 });
 
@@ -146,5 +149,4 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-threads = loadThreads();
-renderThreads();
+loadAndRender();

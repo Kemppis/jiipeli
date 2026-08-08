@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0369a1" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Jiipeli Forum</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Simple PWA Forum</p>
+        <h1>Jiipeli</h1>
+        <p>Post messages and comment anonymously from your device.</p>
+      </div>
+      <div class="status" id="status"></div>
+    </header>
+
+    <section class="card" aria-labelledby="new-post-title">
+      <h2 id="new-post-title">Create a new post</h2>
+      <form id="post-form">
+        <label>
+          Post title
+          <input name="title" type="text" required maxlength="80" placeholder="A short headline" />
+        </label>
+        <label>
+          Message
+          <textarea name="body" rows="4" required maxlength="800" placeholder="Write your message..."></textarea>
+        </label>
+        <button type="submit">Publish post</button>
+      </form>
+    </section>
+
+    <section class="posts" id="posts"></section>
+    <section id="profile" class="card" hidden>
+      <h2>Profile</h2>
+      <p>Your device id: <span id="device-id"></span></p>
+      <h3>Your posts</h3>
+      <div id="my-posts"></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Primary">
+    <button class="bottom-nav__item" data-view="home" aria-label="Home">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 11.5L12 4l9 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 21V12h14v9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="bottom-nav__item" data-view="profile" aria-label="Profile">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>

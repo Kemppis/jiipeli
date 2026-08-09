@@ -5,6 +5,9 @@
   color: #102a43;
   line-height: 1.5;
 }
+[hidden] {
+  display: none !important;
+}
 * {
   box-sizing: border-box;
 }
@@ -83,6 +86,45 @@ button:hover {
   background: #1d4ed8;
   transform: translateY(-1px);
 }
+.secondary-button {
+  background: transparent;
+  color: #2563eb;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 0.85rem 1rem;
+  margin-right: 1rem;
+}
+.secondary-button:hover {
+  background: rgba(37, 99, 235, 0.1);
+}
+..home-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #d9e2ec;
+  border-radius: 18px;
+}
+.home-actions button {
+  width: auto;
+  min-width: 140px;
+  padding: 0.95rem 1.3rem;
+}
+.notify-button {
+  background: #eef2ff;
+  color: #1d4ed8;
+  border: 1px solid #c7d2fe;
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 0.75rem;
+}
+.notify-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .posts {
   display: grid;
   gap: 1rem;
@@ -94,6 +136,19 @@ button:hover {
   border: 1px solid #d9e2ec;
   border-radius: 20px;
   padding: 1rem;
+}
+.post-preview {
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.post-preview:hover {
+  box-shadow: 0 16px 40px rgba(16, 42, 67, 0.08);
+  transform: translateY(-2px);
+}
+.post-summary {
+  margin-top: 0.75rem;
+  color: #52606d;
+  font-size: 0.95rem;
 }
 .post-header {
   display: flex;
@@ -177,3 +232,25 @@ button:hover {
 #profile[hidden] { display: none; }
 #my-posts .post { margin-bottom: 0.75rem; }
 .comment-image { max-width: 100%; border-radius: 12px; display: block; margin: 0.5rem 0; }
+.notification-item {
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: #f8fafc;
+}
+.notification-item.unread {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+.notification-item h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+.notification-item p {
+  margin: 0 0 0.5rem;
+}
+.notification-meta {
+  color: #52606d;
+  font-size: 0.85rem;
+}

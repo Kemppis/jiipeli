@@ -16,11 +16,54 @@
         <h1>Jiipeli</h1>
         <p>Post messages and comment anonymously from your device.</p>
       </div>
-      <div class="status" id="status"></div>
+      <div>
+        <div class="status" id="status"></div>
+        <button id="notify-button" class="notify-button" type="button">Enable notifications</button>
+      </div>
     </header>
 
-    <section class="card" aria-labelledby="new-post-title">
-      <h2 id="new-post-title">Create a new post</h2>
+    <div class="home-actions">
+      <button id="open-new-post" type="button">New post</button>
+    </div>
+
+    <section class="posts" id="posts"></section>
+
+    <section id="post-detail" class="card" hidden aria-labelledby="post-detail-title">
+      <div class="new-post-header">
+        <button id="back-to-home-from-post" type="button" class="secondary-button">Back</button>
+        <h2 id="post-detail-title">Post details</h2>
+      </div>
+      <article class="post-detail-article">
+        <div class="post-header">
+          <div>
+            <h3 class="post-title" id="detail-title-text"></h3>
+            <p class="post-meta" id="detail-meta"></p>
+          </div>
+        </div>
+        <p class="post-body" id="detail-body"></p>
+      </article>
+      <section>
+        <h3>Comments</h3>
+        <ul class="comment-list" id="detail-comments"></ul>
+        <form class="comment-form" data-post-id="" enctype="multipart/form-data">
+          <label>
+            Add reply
+            <textarea name="body" rows="3" placeholder="Reply to this post"></textarea>
+          </label>
+          <label>
+            Attach image
+            <input type="file" name="image" accept="image/*" capture="environment">
+          </label>
+          <button type="submit">Comment</button>
+        </form>
+      </section>
+    </section>
+
+    <section id="new-post" class="card" hidden aria-labelledby="new-post-title">
+      <div class="new-post-header">
+        <button id="back-to-home" type="button" class="secondary-button">Back</button>
+        <h2 id="new-post-title">Create a new post</h2>
+      </div>
       <form id="post-form">
         <label>
           Post title
@@ -34,7 +77,11 @@
       </form>
     </section>
 
-    <section class="posts" id="posts"></section>
+    <section id="notifications" class="card" hidden>
+      <h2>Notifications</h2>
+      <div id="notification-list">No notifications yet.</div>
+    </section>
+
     <section id="profile" class="card" hidden>
       <h2>Profile</h2>
       <p>Your device id: <span id="device-id"></span></p>
@@ -47,6 +94,10 @@
     <button class="bottom-nav__item" data-view="home" aria-label="Home">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 11.5L12 4l9 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 21V12h14v9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Home</span>
+    </button>
+    <button class="bottom-nav__item" data-view="notifications" aria-label="Notifications">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C8.686 3 6 5.686 6 9v5H4a1 1 0 0 0-1 1v1h18v-1a1 1 0 0 0-1-1h-2V9c0-3.314-2.686-6-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 20a3 3 0 0 0 6 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Notifications</span>
     </button>
     <button class="bottom-nav__item" data-view="profile" aria-label="Profile">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>

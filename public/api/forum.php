@@ -12,11 +12,8 @@ $rawInput = file_get_contents('php://input');
 $payload = json_decode($rawInput, true) ?: [];
 $action = $_GET['action'] ?? $payload['action'] ?? null;
 
-// Database configuration - adjust via env or directly here
-$dbHost = getenv('DB_HOST') ?: '127.0.0.1';
-$dbName = getenv('DB_NAME') ?: 'jiipeli';
-$dbUser = getenv('DB_USER') ?: 'jiipeli_user';
-$dbPass = getenv('DB_PASS') ?: 'yourpassword';
+// Database configuration - keep credentials in a separate file outside version control
+require_once __DIR__ . '/connection.php';
 
 try {
     $pdo = new PDO("mysql:host={$dbHost};dbname={$dbName};charset=utf8mb4", $dbUser, $dbPass, [

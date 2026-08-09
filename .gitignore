@@ -1,2 +1,5 @@
 # Local notes
 notes.txt
+
+# Database credentials
+public/api/connection.php
